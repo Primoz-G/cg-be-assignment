@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.store.dto.ProductDto;
 import com.example.store.dto.mapper.ProductDtoMapper;
+import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.persistence.entity.Product;
 import com.example.store.persistence.repository.ProductRepository;
 
@@ -46,12 +47,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto updateProduct(final Long id, final ProductDto productDto) {
-        return null;
+        if (!this.productRepository.existsById(id)) {
+            // TODO: add exception handler!
+            throw new ResourceNotFoundException("Product with id " + id + " does not exist");
+        }
+        final Product updatedEntity = this.productRepository.save(ProductDtoMapper.fromDto(productDto));
+        return ProductDtoMapper.toDto(updatedEntity);
     }
 
     @Override
-    public ProductDto deleteProduct(final Long id) {
-        return null;
+    public void deleteProduct(final Long id) {
+        this.productRepository.deleteById(id);
     }
 
 }
