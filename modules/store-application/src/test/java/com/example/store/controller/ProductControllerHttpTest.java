@@ -17,7 +17,9 @@ import com.example.store.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -101,17 +103,23 @@ class ProductControllerHttpTest {
                 .andExpect(header().string("Location", "http://localhost/products/18"));
     }
 
-    // TODO: add @Valid for body etc.
-//    @Test
-//    void testCreateProduct_invalidBody() throws Exception {
-//        when(productService.createProduct(any(ProductDto.class)))
-//                .thenReturn(allProducts.get(0));
-//
-//        this.mockMvc.perform(post("/products")
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .content("{\"k\": \"v\"}"))
-//                .andExpect(status().isBadRequest());
-//    }
+    @Test
+    void testCreateProduct_invalidBody() throws Exception {
+        this.mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"k\": \"v\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCreateProduct_negativePrice() throws Exception {
+        final ProductDto productToAdd = new ProductDto(null, "Gold", "Definitely real gold", -12345);
+
+        this.mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(OBJECT_MAPPER.writeValueAsString(productToAdd)))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void testUpdateProduct() throws Exception {
@@ -122,14 +130,40 @@ class ProductControllerHttpTest {
     }
 
     @Test
-    void testUpdateProduct_invalidId() throws Exception {
-        when(productService.updateProduct(eq(999L), any(ProductDto.class)))
+    void testUpdateProduct_invalidBody() throws Exception {
+        // Product with missing name -> should return bad request
+        final ProductDto invalidProductDto = new ProductDto(1L, "", "desc", 9.99f);
+        this.mockMvc.perform(put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(OBJECT_MAPPER.writeValueAsString(invalidProductDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdateProduct_conflictingIds() throws Exception {
+        final ProductDto productDto = new ProductDto(100L, "invalid", "I don't exist...", 99.99f);
+
+        // path variable and dto DO NOT match
+        this.mockMvc.perform(put("/products/200")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(OBJECT_MAPPER.writeValueAsString(productDto)))
+                .andExpect(status().isBadRequest());
+        // Should fail in controller and not reach the service
+        verify(productService, never()).updateProduct(anyLong(), any(ProductDto.class));
+    }
+
+    @Test
+    void testUpdateProduct_missingResource() throws Exception {
+        final ProductDto productDto = new ProductDto(999L, "invalid", "I don't exist...", 99.99f);
+        when(productService.updateProduct(999L, productDto))
                 .thenThrow(new ResourceNotFoundException("Product not found"));
 
+        // path variable and dto match, so it continues to the service and throws there
         this.mockMvc.perform(put("/products/999")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(OBJECT_MAPPER.writeValueAsString(allProducts.get(0))))
+                        .content(OBJECT_MAPPER.writeValueAsString(productDto)))
                 .andExpect(status().isNotFound());
+        verify(productService).updateProduct(anyLong(), any(ProductDto.class));
     }
 
     @Test

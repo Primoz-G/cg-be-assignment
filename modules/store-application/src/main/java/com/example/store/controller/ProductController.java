@@ -19,6 +19,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.store.dto.ProductDto;
 import com.example.store.service.ProductService;
 
+import jakarta.validation.Valid;
+
 /**
  * Controller for the product resource, represented by {@link ProductDto}.
  * Reachable at /api/products.
@@ -48,9 +50,8 @@ public class ProductController {
         return ResponseEntity.ok(productById);
     }
 
-    // TODO: validation
     @PostMapping
-    public ResponseEntity<ProductDto> createProduct(@RequestBody final ProductDto productDto) {
+    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody final ProductDto productDto) {
         final ProductDto product = productService.createProduct(productDto);
         // Return header with URI of new resource
         final URI createdUri = ServletUriComponentsBuilder
@@ -64,7 +65,10 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDto> updateProduct(@PathVariable final Long id, @RequestBody final ProductDto productDto) {
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable final Long id, @Valid @RequestBody final ProductDto productDto) {
+        if (!id.equals(productDto.getId())) {
+            return ResponseEntity.badRequest().build();
+        }
         final ProductDto updatedProduct = productService.updateProduct(id, productDto);
         return ResponseEntity.ok(updatedProduct);
     }
