@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto updateProduct(final Long id, final ProductDto productDto) {
         if (!this.productRepository.existsById(id)) {
-            // TODO: add exception handler!
+            // Handler will return 404 not found
             throw new ResourceNotFoundException("Product with id " + id + " does not exist");
         }
         final Product updatedEntity = this.productRepository.save(ProductDtoMapper.fromDto(productDto));

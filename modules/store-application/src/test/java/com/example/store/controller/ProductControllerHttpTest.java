@@ -12,10 +12,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.example.store.dto.ProductDto;
+import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -119,17 +121,16 @@ class ProductControllerHttpTest {
                 .andExpect(status().isOk());
     }
 
-    // TODO: exception handler
-//    @Test
-//    void testUpdateProduct_invalidId() throws Exception {
-//        when(productService.updateProduct(eq(999L), any(ProductDto.class)))
-//                .thenThrow(new ResourceNotFoundException("Product not found"));
-//
-//        this.mockMvc.perform(put("/products/999")
-//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                        .content(OBJECT_MAPPER.writeValueAsString(allProducts.get(0))))
-//                .andExpect(status().isBadRequest());
-//    }
+    @Test
+    void testUpdateProduct_invalidId() throws Exception {
+        when(productService.updateProduct(eq(999L), any(ProductDto.class)))
+                .thenThrow(new ResourceNotFoundException("Product not found"));
+
+        this.mockMvc.perform(put("/products/999")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(OBJECT_MAPPER.writeValueAsString(allProducts.get(0))))
+                .andExpect(status().isNotFound());
+    }
 
     @Test
     void testDeleteProduct() throws Exception {
