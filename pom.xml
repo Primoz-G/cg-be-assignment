@@ -19,6 +19,7 @@
     <modules>
         <module>modules/store-application</module>
         <module>modules/persistence</module>
+        <module>modules/db-schema</module>
     </modules>
 
     <scm>

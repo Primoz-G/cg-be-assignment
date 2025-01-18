@@ -25,6 +25,11 @@
             <artifactId>persistence</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>db-schema</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
