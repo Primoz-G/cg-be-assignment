@@ -1,5 +1,6 @@
 package com.example.store.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -9,13 +10,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.example.store.dto.ProductDto;
+import com.example.store.error.ValidationError;
+import com.example.store.error.ValidationErrorResponse;
 import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -113,12 +118,18 @@ class ProductControllerHttpTest {
 
     @Test
     void testCreateProduct_negativePrice() throws Exception {
+        // Negative price -> should return bad request
         final ProductDto productToAdd = new ProductDto(null, "Gold", "Definitely real gold", -12345);
 
-        this.mockMvc.perform(post("/products")
+        final MvcResult mvcResult = this.mockMvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(OBJECT_MAPPER.writeValueAsString(productToAdd)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        // Check the validation message
+        final String response = mvcResult.getResponse().getContentAsString();
+        final ValidationErrorResponse expectedResponse = new ValidationErrorResponse(Collections.singletonList(new ValidationError("price", "must be greater than or equal to 0")));
+        assertEquals(OBJECT_MAPPER.writeValueAsString(expectedResponse), response);
     }
 
     @Test
@@ -133,10 +144,22 @@ class ProductControllerHttpTest {
     void testUpdateProduct_invalidBody() throws Exception {
         // Product with missing name -> should return bad request
         final ProductDto invalidProductDto = new ProductDto(1L, "", "desc", 9.99f);
-        this.mockMvc.perform(put("/products/1")
+        final MvcResult mvcResult = this.mockMvc.perform(put("/products/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(OBJECT_MAPPER.writeValueAsString(invalidProductDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        // Check the validation messages
+        final String response = mvcResult.getResponse().getContentAsString();
+        final ValidationErrorResponse validationErrorResponse = OBJECT_MAPPER.readValue(response, ValidationErrorResponse.class);
+        final List<ValidationError> expectedValidationErrors = new java.util.ArrayList<>(List.of(
+                new ValidationError("name", "size must be between 2 and 100"),
+                new ValidationError("name", "must not be blank")
+        ));
+        final List<ValidationError> diff = expectedValidationErrors.stream()
+                .filter(validationError -> !validationErrorResponse.errors().contains(validationError))
+                .toList();
+        assertEquals(0, diff.size(), "The validation errors in the response are not as expected");
     }
 
     @Test
