@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%-5p] %C{1.}.%M():%L - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info" additivity="false">
+            <AppenderRef ref="console"/>
+        </Root>
+        <!-- Print debug level messages from our code -->
+        <Logger name="com.example.store" level="DEBUG"/>
+    </Loggers>
+</Configuration>

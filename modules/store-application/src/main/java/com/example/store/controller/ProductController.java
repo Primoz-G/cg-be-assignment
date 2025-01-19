@@ -20,11 +20,13 @@ import com.example.store.dto.ProductDto;
 import com.example.store.service.ProductService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller for the product resource, represented by {@link ProductDto}.
  * Reachable at /api/products.
  */
+@Slf4j
 @RestController
 @RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
@@ -45,6 +47,7 @@ public class ProductController {
     public ResponseEntity<ProductDto> getProductById(@PathVariable final Long id) {
         final ProductDto productById = productService.getProductById(id);
         if (productById == null) {
+            log.debug("Product with id {} not found", id);
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(productById);
@@ -67,6 +70,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductDto> updateProduct(@PathVariable final Long id, @Valid @RequestBody final ProductDto productDto) {
         if (!id.equals(productDto.getId())) {
+            log.error("Invalid update request - IDs in path and body do not match");
             return ResponseEntity.badRequest().build();
         }
         final ProductDto updatedProduct = productService.updateProduct(id, productDto);

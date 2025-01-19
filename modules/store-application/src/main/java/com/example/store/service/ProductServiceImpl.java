@@ -11,9 +11,12 @@ import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.persistence.entity.Product;
 import com.example.store.persistence.repository.ProductRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Default implementation of {@link ProductService}.
  */
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -48,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto updateProduct(final Long id, final ProductDto productDto) {
         if (!this.productRepository.existsById(id)) {
+            log.error("Product with id {} not found", id);
             // Handler will return 404 not found
             throw new ResourceNotFoundException("Product with id " + id + " does not exist");
         }
@@ -57,6 +61,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(final Long id) {
+        log.debug("Deleting product with id {}", id);
         this.productRepository.deleteById(id);
     }
 
