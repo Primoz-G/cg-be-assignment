@@ -6,9 +6,9 @@ Spring Boot CRUD application (backend developer assignment).
 
 ### Prerequisites
 
-* JDK 17 or newer
-* Docker and docker compose [optional] - not needed if you supply an external database
 * Git
+* JRE 17
+* Docker compose [optional] - not needed if you supply an external database
 
 ### Running the application 🚀
 
@@ -16,15 +16,17 @@ Spring Boot CRUD application (backend developer assignment).
 2. Start the database:
     1. From project root, run `docker compose -f development/docker/postgres/compose.yml up [-d]`
 3. Run the application: `./mvnw spring-boot:run`
+4. Alternative:
+    1. Build the project: `./mvnw install -DskipTests`
+    2. Run `java -jar modules/store-application/target/store-application-1.0.jar`
 
 ### Using an external database 🐘
 
-If you have an external database, you have to supply the datasource connection parameters to the application,
-like this:
+If you want to use an external database, you have to pass the datasource connection properties to the application:
 
 ```
 ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments='
--Dspring.datasource.url=jdbc:postgresql://<server-name>:5432/<db-name>
+-Dspring.datasource.url=jdbc:postgresql://<server>:<port>/<db-name>
 -Dspring.datasource.username=<username>
 -Dspring.datasource.password=<password>'
 ```
