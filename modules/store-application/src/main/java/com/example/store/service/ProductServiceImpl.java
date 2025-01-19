@@ -2,6 +2,7 @@ package com.example.store.service;
 
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
      *
      * @return list of all product DTOs, empty list if none are found
      */
+    @NotNull
     @Override
     public List<ProductDto> getAllProducts() {
         return this.productRepository.findAll()
@@ -47,8 +49,9 @@ public class ProductServiceImpl implements ProductService {
      * @return product DTO
      * @throws ResourceNotFoundException if product does not exist in the database (handler will return 404 not found)
      */
+    @NotNull
     @Override
-    public ProductDto getProductById(final Long id) {
+    public ProductDto getProductById(@NotNull final Long id) {
         return this.productRepository.findById(id)
                 .map(ProductDtoMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
@@ -60,8 +63,9 @@ public class ProductServiceImpl implements ProductService {
      * @param productDto product DTO
      * @return created product DTO
      */
+    @NotNull
     @Override
-    public ProductDto createProduct(final ProductDto productDto) {
+    public ProductDto createProduct(@NotNull final ProductDto productDto) {
         final Product entity = this.productRepository.save(ProductDtoMapper.fromDto(productDto));
         log.debug("Created new product with id {}", entity.getId());
         return ProductDtoMapper.toDto(entity);
@@ -75,8 +79,9 @@ public class ProductServiceImpl implements ProductService {
      * @return updated product DTO
      * @throws ResourceNotFoundException if product does not exist in the database (handler will return 404 not found)
      */
+    @NotNull
     @Override
-    public ProductDto updateProduct(final Long id, final ProductDto productDto) {
+    public ProductDto updateProduct(@NotNull final Long id, @NotNull final ProductDto productDto) {
         if (!this.productRepository.existsById(id)) {
             log.error("Trying to update non-existing product with id {}", id);
             throw new ResourceNotFoundException("Failed update - product with id " + id + " does not exist");
@@ -93,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
      * @throws ResourceNotFoundException if product does not exist in the database (handler will return 404 not found)
      */
     @Override
-    public void deleteProduct(final Long id) {
+    public void deleteProduct(@NotNull final Long id) {
         if (!this.productRepository.existsById(id)) {
             log.error("Trying to delete non-existing product with id {}", id);
             throw new ResourceNotFoundException("Failed deletion - product with id " + id + " does not exist");
