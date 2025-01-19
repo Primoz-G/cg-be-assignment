@@ -35,20 +35,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests HTTP responses of {@link ProductController}.
+ * Tests HTTP responses of {@link ProductController},
+ * including validation errors.
  */
 @WebMvcTest(controllers = ProductController.class)
-class ProductControllerHttpTest {
+class ProductControllerTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @MockitoBean
+    private final ProductService productService;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private ProductService productService;
-
     private List<ProductDto> allProducts;
+
+    @Autowired
+    ProductControllerTest(final ProductService productService) {
+        this.productService = productService;
+    }
 
     @BeforeEach
     void setUp() {
