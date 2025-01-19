@@ -87,6 +87,8 @@ class ProductControllerHttpTest {
 
     @Test
     void testGetProductById_notFound() throws Exception {
+        when(productService.getProductById(5L))
+                .thenThrow(new ResourceNotFoundException("Product not found"));
         this.mockMvc.perform(get("/products/5"))
                 .andExpect(status().isNotFound());
     }

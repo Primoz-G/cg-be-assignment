@@ -13,7 +13,6 @@ import com.example.store.persistence.repository.ProductRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -59,8 +58,7 @@ class ProductServiceImplTest {
 
     @Test
     void testGetProductById_notFound() {
-        final ProductDto productById = productService.getProductById(99L);
-        assertNull(productById);
+        assertThrowsExactly(ResourceNotFoundException.class, () -> productService.getProductById(99L));
         verify(productRepository).findById(99L);
     }
 
@@ -105,7 +103,15 @@ class ProductServiceImplTest {
 
     @Test
     void testDeleteProduct() {
+        when(productRepository.existsById(5L)).thenReturn(true);
         productService.deleteProduct(5L);
         verify(productRepository).deleteById(5L);
+    }
+
+    @Test
+    void testDeleteProduct_notFound() {
+        // repository.existsById returns false
+        assertThrowsExactly(ResourceNotFoundException.class, () -> productService.deleteProduct(88L));
+        verify(productRepository, never()).deleteById(88L);
     }
 }
