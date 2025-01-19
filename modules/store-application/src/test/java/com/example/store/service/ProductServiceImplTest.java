@@ -46,6 +46,7 @@ class ProductServiceImplTest {
     void testGetAllProducts() {
         final List<ProductDto> allProducts = productService.getAllProducts();
         assertEquals(2, allProducts.size());
+        verify(productRepository).findAll();
     }
 
     @Test
@@ -53,12 +54,14 @@ class ProductServiceImplTest {
         final ProductDto productById = productService.getProductById(1L);
         assertNotNull(productById);
         assertEquals(1L, productById.getId());
+        verify(productRepository).findById(1L);
     }
 
     @Test
     void testGetProductById_notFound() {
         final ProductDto productById = productService.getProductById(99L);
         assertNull(productById);
+        verify(productRepository).findById(99L);
     }
 
     @Test
