@@ -38,6 +38,8 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <skip>false</skip>
+                    <mainClass>com.example.store.StoreApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -48,5 +50,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

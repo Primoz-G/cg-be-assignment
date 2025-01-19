@@ -100,6 +100,15 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <!-- Skip to make sure plugin from module store-application is used -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
