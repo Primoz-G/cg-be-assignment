@@ -1,6 +1,10 @@
 ## cg-be-assignment (store-application)
 
-Spring Boot CRUD application (backend developer assignment).
+_Note: This is for a backend developer assignment: Spring Boot CRUD application for a 'Product'._
+
+The application provides a REST API with standard CRUD operations for products.
+
+Example requests are provided as a Postman collection in `development/products_postman_collection.json`
 
 ## Getting started
 
